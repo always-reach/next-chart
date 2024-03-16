@@ -13,7 +13,7 @@ type Props= {
 };
 
 
-const LineChart: React.FC<Props> = ({ title, data, width = 640, height = 400, color='steelblue', strokeWidth=2,fill='none' }) => {
+const BarChart: React.FC<Props> = ({ title, data, width = 640, height = 400, color='steelblue', strokeWidth=2,fill='none' }) => {
   const ref = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
@@ -47,7 +47,6 @@ const LineChart: React.FC<Props> = ({ title, data, width = 640, height = 400, co
       .attr('stroke-dashoffset', 0);
   }, [data, width, height, color, strokeWidth, fill]);
 
-
   return (
     <div>
       <h2>{title}</h2>
@@ -58,4 +57,4 @@ const LineChart: React.FC<Props> = ({ title, data, width = 640, height = 400, co
   );
 };
 
-export default LineChart;
+export default BarChart;
