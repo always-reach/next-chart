@@ -35,17 +35,34 @@ const BarChart: React.FC<Props> = ({ title, data, width = 640, height = 400, col
 
     g.append('g').attr('transform', `translate(0,${innerHeight})`).call(d3.axisBottom(xScale));
 
-    g.selectAll('.bar')
-      .data(data)
-      .enter().append('rect')
-      .attr('class', 'bar')
-      .attr('x', d => xScale(d.name)!)
+    const bars = g.selectAll<SVGRectElement, Data>('.bar').data(data, d => d.name);
+
+    bars
+      .exit()
+      .transition().duration(500)
       .attr('y', innerHeight)
+      .attr('height', 0)
+      .remove();
+
+    bars
+      .enter()
+      .append('rect')
+      .attr('class', 'bar')
+      .attr('x', d => xScale(d.name)??0)
+      .attr('y', innerHeight) // 初期値をグラフの底から開始
       .attr('width', xScale.bandwidth())
+      .attr('height', 0) // 初期高さを0に設定
       .attr('fill', color)
+      .transition().duration(750) // アニメーションで高さとy位置を変更
+      .attr('y', d => yScale(d.value))
+      .attr('height', d => innerHeight - yScale(d.value));
+
+    bars
       .transition()
       .duration(750)
+      .attr('x', d => xScale(d.name)??0)
       .attr('y', d => yScale(d.value))
+      .attr('width', xScale.bandwidth())
       .attr('height', d => innerHeight - yScale(d.value));
 
 

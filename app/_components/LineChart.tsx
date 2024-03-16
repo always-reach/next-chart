@@ -2,9 +2,14 @@
 import * as d3 from 'd3';
 import React, { useEffect, useRef } from 'react';
 
+type LineData = {
+  id: string;
+  values: number[];
+};
+
 type Props= {
   title: string;
-  data: number[];
+  data: LineData[];
   width?: number;
   height?: number;
   color?: string;
@@ -17,34 +22,37 @@ const LineChart: React.FC<Props> = ({ title, data, width = 640, height = 400, co
   const ref = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
+    if (!ref.current) return;
     const svg = d3.select(ref.current);
-    const xScale = d3.scaleLinear().domain([0, data.length - 1]).range([0, width]);
-    const yScale = d3.scaleLinear().domain([0, d3.max(data) ?? 0]).range([height, 0]);
+    svg.selectAll('*').remove(); // グラフをリセット
+
+    const xScale = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d.values.length - 1) ?? 0])
+      .range([0, width]);
+    const yScale = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d3.max(d.values) ?? 0) ?? 0])
+      .range([height, 0]);
 
     const lineGenerator = d3.line<number>()
       .x((_d, i) => xScale(i))
       .y(d => yScale(d));
 
-    svg.select('.line-path')
-      .attr('d', lineGenerator(data))
-      .attr('stroke', color)
-      .attr('stroke-width', strokeWidth)
-      .attr('fill', fill);
+    const lines = svg.selectAll<SVGRectElement, LineData>('.line-path')
+      .data(data, d => d.id);
 
-    // アニメーションの追加
-    svg.select('.line-path')
-      .attr('stroke-dasharray', function() {
-        const path = this as SVGPathElement;
-        const length = path.getTotalLength();
-        return `${length} ${length}`;
-      })
-      .attr('stroke-dashoffset', function() {
-        const path = this as SVGPathElement;
-        return path.getTotalLength();
-      })
-      .transition()
-      .duration(2000)
-      .attr('stroke-dashoffset', 0);
+    lines.enter()
+      .append('path')
+      .attr('class', 'line-path')
+      .attr('d', d => lineGenerator(d.values))
+      .attr('stroke', 'steelblue') // ここで線ごとに色を動的に設定することも可能
+      .attr('stroke-width', strokeWidth)
+      .attr('fill', 'none');
+
+    // アップデートされた線のパスを再描画
+    lines.attr('d', d => lineGenerator(d.values));
+
+    // 不要になった線を削除
+    lines.exit().remove();
   }, [data, width, height, color, strokeWidth, fill]);
 
 
