@@ -13,7 +13,7 @@ type Props= {
 };
 
 
-const LinePlot: React.FC<Props> = ({ title, data, width = 640, height = 400, color='steelblue', strokeWidth=2,fill='none' }) => {
+const LineChart: React.FC<Props> = ({ title, data, width = 640, height = 400, color='steelblue', strokeWidth=2,fill='none' }) => {
   const ref = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
@@ -57,4 +57,4 @@ const LinePlot: React.FC<Props> = ({ title, data, width = 640, height = 400, col
   );
 };
 
-export default LinePlot;
+export default LineChart;
